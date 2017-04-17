@@ -1,0 +1,204 @@
+{{>licenseInfo}}
+import { autoinject }                                       from "aurelia-framework";
+import { HttpClient }              from "aurelia-fetch-client";
+import { Config }                                           from "./config";
+import * as models                                          from "../model/models";
+import { BASE_PATH, COLLECTION_FORMATS }                    from "../variables";
+
+/* tslint:disable:no-unused-variable member-ordering */
+
+{{#operations}}
+
+{{#description}}
+/**
+ * {{&description}}
+ */
+{{/description}}
+@autoinject
+export class {{classname}} {
+    constructor(protected http: HttpClient, protected config: Config) { }
+
+{{#operation}}
+    /**
+     * {{summary}}
+     * {{notes}}
+     {{#allParams}}* @param {{paramName}} {{description}}
+     {{/allParams}}*/
+    public {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}extraHttpRequestParams?: any): Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}{}{{/returnType}}> {
+        return this.{{nickname}}WithHttpInfo({{#allParams}}{{paramName}}, {{/allParams}}extraHttpRequestParams)
+            .then((response: Response) => {
+                if (response.status === 204) {
+                    return undefined;
+                } else {
+                    return <Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}{}{{/returnType}}>>response.json();
+                }
+            });
+    }
+
+{{/operation}}
+
+{{#operation}}
+    /**
+     * {{summary}}
+     * {{notes}}
+     {{#allParams}}* @param {{paramName}} {{description}}
+     {{/allParams}}*/
+    public {{nickname}}WithHttpInfo({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{{dataType}}}, {{/allParams}}extraHttpRequestParams?: any): Promise<Response> {
+        const path = this.config.BasePath + '{{{path}}}'{{#pathParams}}
+                    .replace('${' + '{{baseName}}' + '}', String({{paramName}})){{/pathParams}};
+
+        let queryParameters = new URLSearchParams();
+        // TODO: Include default headers....
+        //let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+{{#hasFormParams}}
+        let formParams = new URLSearchParams();
+
+{{/hasFormParams}}
+{{#allParams}}
+{{#required}}
+        // verify required parameter '{{paramName}}' is not null or undefined
+        if ({{paramName}} === null || {{paramName}} === undefined) {
+            throw new Error('Required parameter {{paramName}} was null or undefined when calling {{nickname}}.');
+        }
+{{/required}}
+{{/allParams}}
+{{#queryParams}}
+        {{#isListContainer}}
+        if ({{paramName}}) {
+        {{#isCollectionFormatMulti}}
+            {{paramName}}.forEach((element) => {
+                queryParameters.append('{{baseName}}', <any>element);
+            })
+        {{/isCollectionFormatMulti}}
+        {{^isCollectionFormatMulti}}
+            queryParameters.set('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}']));
+        {{/isCollectionFormatMulti}}
+        }
+        {{/isListContainer}}
+        {{^isListContainer}}
+        if ({{paramName}} !== undefined) {
+        {{#isDateTime}}
+            queryParameters.set('{{baseName}}', <any>{{paramName}}.toISOString());
+        {{/isDateTime}}
+        {{^isDateTime}}
+            {{#isDate}}
+            queryParameters.set('{{baseName}}', <any>{{paramName}}.toISOString());
+            {{/isDate}}
+            {{^isDate}}
+            queryParameters.set('{{baseName}}', <any>{{paramName}});
+            {{/isDate}}
+        {{/isDateTime}}
+        }
+        {{/isListContainer}}
+
+{{/queryParams}}
+{{#headerParams}}
+        {{#isListContainer}}
+        if ({{paramName}}) {
+            headers.set('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}']));
+        }
+        {{/isListContainer}}
+        {{^isListContainer}}
+        headers.set('{{baseName}}', String({{paramName}}));
+        {{/isListContainer}}
+
+{{/headerParams}}
+        // to determine the Content-Type header
+        let consumes: string[] = [
+            {{#consumes}}
+            '{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}
+            {{/consumes}}
+        ];
+
+        // to determine the Accept header
+        let produces: string[] = [
+            {{#produces}}
+            '{{{mediaType}}}'{{#hasMore}}, {{/hasMore}}
+            {{/produces}}
+        ];
+
+{{#authMethods}}
+        // authentication ({{name}}) required
+{{#isApiKey}}
+{{#isKeyInHeader}}
+        if (this.configuration.apiKey) {
+            headers.set('{{keyParamName}}', this.configuration.apiKey);
+        }
+
+{{/isKeyInHeader}}
+{{#isKeyInQuery}}
+        if (this.configuration.apiKey) {
+            queryParameters.set('{{keyParamName}}', this.configuration.apiKey);
+        }
+
+{{/isKeyInQuery}}
+{{/isApiKey}}
+{{#isBasic}}
+        // http basic authentication required
+        if (this.configuration.username || this.configuration.password) {
+            headers.set('Authorization', 'Basic ' + btoa(this.configuration.username + ':' + this.configuration.password));
+        }
+
+{{/isBasic}}
+{{#isOAuth}}
+        // oauth required
+        if (this.configuration.accessToken) {
+            let accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+{{/isOAuth}}
+{{/authMethods}}
+{{#hasFormParams}}
+        headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+{{/hasFormParams}}
+{{#bodyParam}}
+        headers.set('Content-Type', 'application/json');
+
+{{/bodyParam}}
+{{#formParams}}
+        {{#isListContainer}}
+        if ({{paramName}}) {
+        {{#isCollectionFormatMulti}}
+            {{paramName}}.forEach((element) => {
+                formParams.append('{{baseName}}', <any>element);
+            })
+        {{/isCollectionFormatMulti}}
+        {{^isCollectionFormatMulti}}
+            formParams.set('{{baseName}}', {{paramName}}.join(COLLECTION_FORMATS['{{collectionFormat}}']));
+        {{/isCollectionFormatMulti}}
+        }
+        {{/isListContainer}}
+        {{^isListContainer}}
+        if ({{paramName}} !== undefined) {
+            formParams.set('{{baseName}}', <any>{{paramName}});
+        }
+        {{/isListContainer}}
+
+{{/formParams}}
+        let requestOptions: Request = new Request(`${path}?${queryParameters.toString()}`, {
+            method: "{{httpMethod}}",
+            // TODO: Allow passing headers...
+            //headers: headers,
+{{#bodyParam}}
+            body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
+{{/bodyParam}}
+{{#hasFormParams}}
+            body: formParams.toString(),
+{{/hasFormParams}}
+        });
+
+        // https://github.com/swagger-api/swagger-codegen/issues/4037
+        if (extraHttpRequestParams) {
+            requestOptions = (<any>Object).assign(requestOptions, extraHttpRequestParams);
+        }
+
+        return this.http.fetch(requestOptions);
+    }
+
+{{/operation}}
+}
+{{/operations}}
