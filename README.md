@@ -1,0 +1,1 @@
+# typescript-aurelia-fetch-client-generator
