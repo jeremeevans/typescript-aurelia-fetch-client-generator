@@ -48,8 +48,7 @@ export class {{classname}} {
                     .replace('${' + '{{baseName}}' + '}', String({{paramName}})){{/pathParams}};
 
         let queryParameters = new URLSearchParams();
-        // TODO: Include default headers....
-        //let headers = new Headers(this.defaultHeaders.toJSON()); // https://github.com/angular/angular/issues/6845
+        let headers = new Headers(); // TODO: What about headers that are added to each request?
 {{#hasFormParams}}
         let formParams = new URLSearchParams();
 
@@ -179,10 +178,12 @@ export class {{classname}} {
         {{/isListContainer}}
 
 {{/formParams}}
-        let requestOptions: Request = new Request(`${path}?${queryParameters.toString()}`, {
+        let paramsAsString = queryParameters.toString();
+        let builtPath = paramsAsString.length > 0 ? `${path}?${queryParameters.toString()}` : `${path}`;
+        let requestOptions: Request = new Request(builtPath, {
             method: "{{httpMethod}}",
-            // TODO: Allow passing headers...
-            //headers: headers,
+            headers: headers,
+            credentials: this.http.defaults.credentials,
 {{#bodyParam}}
             body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
 {{/bodyParam}}
