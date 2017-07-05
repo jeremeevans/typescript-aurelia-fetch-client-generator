@@ -183,7 +183,7 @@ export class {{classname}} {
         let requestOptions: Request = new Request(builtPath, {
             method: "{{httpMethod}}",
             headers: headers,
-            credentials: this.http.defaults.credentials,
+            credentials: <RequestCredentials>this.http.defaults.credentials,
 {{#bodyParam}}
             body: {{paramName}} == null ? '' : JSON.stringify({{paramName}}), // https://github.com/angular/angular/issues/10612
 {{/bodyParam}}
