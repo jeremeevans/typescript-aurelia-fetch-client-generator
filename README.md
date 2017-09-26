@@ -10,16 +10,16 @@ Windows. To set up Java and Maven and build the Swagger Codegen related reposito
 
 1. Open PowerShell 
 1. Make sure your execution policy is unrestricted: 
-    * set-executionpolicy unrestricted -s cu 
+    * ``` set-executionpolicy unrestricted -s cu ```
 1. Install [Scoop](http://scoop.sh/) and use it to install Open JDK and Maven
-    * iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
-    * scoop install openjdk maven 
+    * ``` iex (new-object net.webclient).downloadstring('https://get.scoop.sh') ```
+    * ``` scoop install openjdk maven ```
 1. Navigate to the directory you have your git repositories in. 
 1. Clone Swagger Codegen: 
-    * git clone https://github.com/swagger-api/swagger-codegen.git 
+    * ``` git clone https://github.com/swagger-api/swagger-codegen.git ``
 1. Navigate to the swagger-codegen directory and build/install it: 
-1. mvn clean package 
-1. mvn install 
+    * ``` mvn clean package ```
+    * ``` mvn install ```
 1. Go back to your git directory and clone the typescript-aurelia-fetch-client-generator: 
     * ``` git clone https://github.com/jeremeevans/typescript-aurelia-fetch-client-generator.git  ```
 1. Navigate to the typescript-aurelia-fetch-client-generator directory and build it: 
