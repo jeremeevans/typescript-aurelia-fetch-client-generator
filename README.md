@@ -4,4 +4,64 @@ This generator assumes you are using [Aurelia](http://aurelia.io/) and the [aure
 
 ## Building the aurelia-fetch-client generator
 
+Building on Windows requires Java and Maven. They can be set up using scoop in PowerShell. It requires
+PowerShell v3 as a minimum, so you may need to upgrade PowerShell if you have an older version of
+Windows. To set up Java and Maven and build the Swagger Codegen related repositories:
+
+1. Open PowerShell 
+1. Make sure your execution policy is unrestricted: 
+    * set-executionpolicy unrestricted -s cu 
+1. Install [Scoop](http://scoop.sh/) and use it to install Open JDK and Maven
+    * iex (new-object net.webclient).downloadstring('https://get.scoop.sh')
+    * scoop install openjdk maven 
+1. Navigate to the directory you have your git repositories in. 
+1. Clone Swagger Codegen: 
+    * git clone https://github.com/swagger-api/swagger-codegen.git 
+1. Navigate to the swagger-codegen directory and build/install it: 
+1. mvn clean package 
+1. mvn install 
+1. Go back to your git directory and clone the typescript-aurelia-fetch-client-generator: 
+    * ``` git clone https://github.com/jeremeevans/typescript-aurelia-fetch-client-generator.git  ```
+1. Navigate to the typescript-aurelia-fetch-client-generator directory and build it: 
+    * ``` mvn package ``` 
+
+That should get everything on your box and built and ready to generate stuff.
+
 ## Using the aurelia-fetch-client generator
+
+To generate a TypeScript Aurelia Fetch Client from your swagger definition, the most basic command is:
+
+```
+java -cp '../typescript-aurelia-fetch-client-generator/target/typescript-aurelia-fetch-client-swagger-codegen-1.0.0.jar;./modules/swagger-codegen-cli/target/swagger-codegen-cli.jar' io.swagger.codegen.Codegen -i http://path.to.swagger.doc/swagger/docs/v5 -l typescript-aurelia-fetch-client -o C:\output\path
+```
+
+You can create a .config file for the API you are generating. So create a config.json file with the following contents: 
+
+``` 
+{ 
+  "packageName": "MyPackageName" 
+}
+```
+
+Some of the configuration options are:
+
+* packageName: Specify the name of your package.
+* modelPropertyNaming: Property naming convention. The default is camelCase. The available options are:
+    * camelCase
+    * PascalCase
+    * snake_case
+    * original
+
+To use the config file when generating your client, reference it using -c, as such:
+
+```
+java -cp '../typescript-aurelia-fetch-client-generator/target/typescript-aurelia-fetch-client-swagger-codegen-1.0.0.jar;./modules/swagger-codegen-cli/target/swagger-codegen-cli.jar' io.swagger.codegen.Codegen -i http://path.to.swagger.doc/swagger/docs/v5 -l typescript-aurelia-fetch-client -o C:\output\path -c c:\path\to\config.json
+```
+
+## If you're using Swashbuckle in C#
+
+You can specify the naming of your client routes by using the SwaggerOperationAttribute:
+
+```
+[SwaggerOperation(OperationId = "Query")] 
+```
