@@ -35,7 +35,7 @@ To generate a TypeScript Aurelia Fetch Client from your swagger definition, the 
 java -cp '../typescript-aurelia-fetch-client-generator/target/typescript-aurelia-fetch-client-swagger-codegen-1.0.0.jar;./modules/swagger-codegen-cli/target/swagger-codegen-cli.jar' io.swagger.codegen.Codegen -i http://path.to.swagger.doc/swagger/docs/v5 -l typescript-aurelia-fetch-client -o C:\output\path
 ```
 
-You can create a .config file for the API you are generating. So create a config.json file with the following contents: 
+You can create a config.json file for the API you are generating. So create a config.json file with the following contents: 
 
 ``` 
 { 
