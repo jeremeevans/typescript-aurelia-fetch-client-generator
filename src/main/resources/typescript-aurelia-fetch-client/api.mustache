@@ -19,6 +19,7 @@ export class {{classname}} {
     constructor(protected http: HttpClient, protected config: Config) { }
 
 {{#operation}}
+
     /**
      * {{summary}}
      * {{notes}}
@@ -30,7 +31,14 @@ export class {{classname}} {
                 if (response.status === 204) {
                     return undefined;
                 } else {
+                    {{#responses}}
+                    {{#isString}}
+                    return response.text();
+                    {{/isString}}
+                    {{^isString}}
                     return <Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}{}{{/returnType}}>>response.json();
+                    {{/isString}}
+                    {{/responses}}
                 }
             });
     }
