@@ -1,4 +1,5 @@
 export class Config {
     public BasePath: string = "{{{basePath}}}";
     public Credentials: RequestCredentials = undefined;
+    public APIKeys: { [id: string]: string; } = {};
 }

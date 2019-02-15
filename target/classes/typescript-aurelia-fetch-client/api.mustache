@@ -18,7 +18,7 @@ import { BASE_PATH, COLLECTION_FORMATS }                    from "../variables";
  * {{&description}}
  */
 {{/description}}
-@autoinject
+@autoinject()
 export class {{classname}} {
     constructor(protected http: HttpClient, protected config: Config) { }
 
@@ -40,12 +40,14 @@ export class {{classname}} {
                     return undefined;
                 } else {
                     {{#responses}}
-                    {{#isString}}
-                    return response.text();
-                    {{/isString}}
-                    {{^isString}}
-                    return <Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}{}{{/returnType}}>>response.json();
-                    {{/isString}}
+                    if (response.status === {{code}}) {
+                        {{#isString}}
+                        return response.text();
+                        {{/isString}}
+                        {{^isString}}
+                        return <Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}{}{{/returnType}}>>response.json();
+                        {{/isString}}
+                    }
                     {{/responses}}
                 }
             });
@@ -136,14 +138,14 @@ export class {{classname}} {
         // authentication ({{name}}) required
 {{#isApiKey}}
 {{#isKeyInHeader}}
-        if (this.configuration.apiKey) {
-            headers.set('{{keyParamName}}', this.configuration.apiKey);
+        if (this.config.APIKeys["{{keyParamName}}"]) {
+            headers.set('{{keyParamName}}', this.config.APIKeys["{{keyParamName}}"]);
         }
 
 {{/isKeyInHeader}}
 {{#isKeyInQuery}}
-        if (this.configuration.apiKey) {
-            queryParameters.set('{{keyParamName}}', this.configuration.apiKey);
+        if (this.config.APIKeys["{{keyParamName}}"]) {
+            queryParameters.set('{{keyParamName}}', this.config.APIKeys["{{keyParamName}}"]);
         }
 
 {{/isKeyInQuery}}
